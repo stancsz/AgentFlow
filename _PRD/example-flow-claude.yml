@@ -1,0 +1,165 @@
+schema_version: 1.0
+plan_id: "plan-claude-2025-11-05-001"
+name: "Claude Adapter Demo: Multi-Step Code Review"
+description: >
+  Demonstration plan showing the Claude (Anthropic) adapter in action.
+  This plan illustrates a typical code review workflow where Claude analyzes
+  repository structure, identifies issues, and proposes refactoring steps.
+created_at: "2025-11-05T14:30:00Z"
+last_updated: "2025-11-05T14:35:12Z"
+created_by: "agentflow-cli@local"
+version: 1
+status: completed
+tags:
+  - claude
+  - code-review
+  - demo
+context:
+  adapter: "claude"
+  model: "claude-3-5-sonnet-latest"
+  repository: "github.com/koushik24k/AgentFlow"
+  objective: "Demonstrate Claude adapter integration with AgentFlow CLI."
+vars:
+  target_module: "src/agentflow/adapters/"
+  review_criteria: "readability, maintainability, test coverage"
+metrics:
+  total_nodes: 3
+  completed: 3
+  success_rate: 100
+nodes:
+  - id: claude_execution
+    type: agent
+    summary: "Analyze adapter module structure and identify improvement areas."
+    depends_on: []
+    status: succeeded
+    attempt: 1
+    inputs:
+      prompt: |
+        You are a senior software engineer reviewing the AgentFlow adapter module.
+        Analyze the structure of src/agentflow/adapters/ and identify:
+        1. Code organization strengths
+        2. Potential improvements for maintainability
+        3. Test coverage gaps
+        Provide actionable recommendations in a numbered list.
+    outputs:
+      message: |
+        # Code Review: AgentFlow Adapter Module
+
+        ## Strengths
+        1. **Clear separation of concerns** - Each adapter (Codex, Claude) is isolated in its own module
+        2. **Consistent interface** - Both adapters follow the same pattern: Result dataclass, Error exception, Adapter class
+        3. **Comprehensive error handling** - CLI errors are caught and wrapped appropriately
+
+        ## Improvement Opportunities
+        1. **Extract common base class** - Both adapters share similar initialization and command-building patterns. Consider an abstract BaseAdapter class.
+        2. **Standardize event handling** - Claude adapter returns empty events list; consider unifying event capture across adapters.
+        3. **Configuration validation** - Move API key validation to Settings.from_env() to fail fast at configuration time.
+
+        ## Test Coverage Gaps
+        1. Add integration tests that exercise both adapters with identical prompts to verify behavior parity.
+        2. Include timeout and subprocess error scenarios in unit tests.
+        3. Add property-based tests for edge cases in JSON parsing.
+
+        These changes would improve maintainability and make it easier to add future adapters (e.g., OpenAI direct API, local models).
+      events: []
+      evaluation:
+        score: 0.92
+        justification: "Comprehensive analysis with actionable recommendations. Addresses architecture, error handling, and testing."
+        raw_message: '{"score": 0.92, "justification": "Comprehensive analysis with actionable recommendations. Addresses architecture, error handling, and testing."}'
+        events: []
+        usage:
+          input_tokens: 180
+          output_tokens: 45
+    artifacts: []
+    metrics:
+      usage:
+        input_tokens: 850
+        output_tokens: 320
+      evaluation_score: 0.92
+      evaluation_usage:
+        input_tokens: 180
+        output_tokens: 45
+    timeline:
+      queued_at: "2025-11-05T14:30:05Z"
+      started_at: "2025-11-05T14:30:07Z"
+      ended_at: "2025-11-05T14:34:22Z"
+      duration_seconds: 255
+    history:
+      - attempt_id: 1
+        timestamp: "2025-11-05T14:34:22Z"
+        status: succeeded
+        notes: "Claude invocation succeeded."
+
+  - id: flow::analyze_structure
+    type: action
+    summary: "Scan adapter module files and extract key patterns"
+    depends_on:
+      - claude_execution
+    status: succeeded
+    attempt: 1
+    inputs:
+      flow_spec_node:
+        id: analyze_structure
+        label: "Analyze module structure"
+        type: action
+    outputs:
+      notes: "Synthetic node derived from flow_spec JSON."
+      source: "flow_spec"
+      node_id: "analyze_structure"
+    artifacts: []
+    metrics:
+      flow_spec_type: "action"
+    timeline:
+      queued_at: "2025-11-05T14:30:05Z"
+      started_at: "2025-11-05T14:30:05Z"
+      ended_at: "2025-11-05T14:34:22Z"
+      duration_seconds: 255
+    history:
+      - attempt_id: 1
+        timestamp: "2025-11-05T14:34:22Z"
+        status: succeeded
+        notes: "Generated from flow_spec JSON."
+
+  - id: flow::generate_recommendations
+    type: action
+    summary: "Synthesize findings into actionable recommendations"
+    depends_on:
+      - flow::analyze_structure
+    status: succeeded
+    attempt: 1
+    inputs:
+      flow_spec_node:
+        id: generate_recommendations
+        label: "Generate recommendations"
+        type: action
+    outputs:
+      notes: "Synthetic node derived from flow_spec JSON."
+      source: "flow_spec"
+      node_id: "generate_recommendations"
+    artifacts: []
+    metrics:
+      flow_spec_type: "action"
+    timeline:
+      queued_at: "2025-11-05T14:30:05Z"
+      started_at: "2025-11-05T14:30:05Z"
+      ended_at: "2025-11-05T14:34:22Z"
+      duration_seconds: 255
+    history:
+      - attempt_id: 1
+        timestamp: "2025-11-05T14:34:22Z"
+        status: succeeded
+        notes: "Generated from flow_spec JSON."
+
+rollup:
+  completion_percentage: 100
+  counts:
+    succeeded: 3
+    failed: 0
+  last_writer: "agentflow-cli@local"
+
+metadata:
+  codex_events_count: 0
+  adapter: "claude"
+
+eval_metrics:
+  self_evaluation_score: 0.92

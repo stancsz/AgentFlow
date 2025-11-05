@@ -22,6 +22,8 @@ if TYPE_CHECKING:  # pragma: no cover - type checking only
         CopilotCLIError,
         MockAdapter,
         MockAdapterError,
+        ClaudeCLIAdapter,
+        ClaudeCLIError,
     )
     from agentflow.viewer import run_viewer
 
@@ -37,6 +39,7 @@ def _resolve_adapter(adapter_name: str) -> Tuple[Callable[[Settings], object], T
         "mock": (cli_module.MockAdapter, cli_module.MockAdapterError),
         "copilot": (cli_module.CopilotCLIAdapter, cli_module.CopilotCLIError),
         "codex": (cli_module.CodexCLIAdapter, cli_module.CodexCLIError),
+        "claude": (cli_module.ClaudeCLIAdapter, cli_module.ClaudeCLIError),
     }
     if adapter_name not in adapters:
         raise KeyError(adapter_name)

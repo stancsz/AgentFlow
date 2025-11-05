@@ -24,13 +24,20 @@ class ConfigurationError(RuntimeError):
 class Settings:
     """Container for runtime configuration."""
 
-    openai_api_key: str
+    # OpenAI/Codex
+    openai_api_key: Optional[str] = None
     codex_cli_path: str = "codex.cmd"
     model: str = "gpt-5-mini"
     sandbox_mode: str = "workspace-write"
     approval_policy: str = "on-request"
     copilot_cli_path: str = "copilot"
     copilot_token: Optional[str] = None
+
+    # Anthropic/Claude
+    anthropic_api_key: Optional[str] = None
+    anthropic_cli_path: str = "anthropic"
+    anthropic_model: str = "claude-3-5-sonnet-latest"
+    anthropic_max_tokens: int = 1024
 
     @classmethod
     def from_env(
@@ -56,9 +63,9 @@ class Settings:
 
         from os import environ
 
-        api_key = environ.get("OPENAI_API_KEY")
-        if not api_key:
-            raise ConfigurationError("OPENAI_API_KEY must be set in the environment or .env file.")
+        # Load both providers keys if present; actual adapter will validate.
+        openai_api_key = environ.get("OPENAI_API_KEY")
+        anthropic_api_key = environ.get("ANTHROPIC_API_KEY")
 
         cli_path = environ.get("AGENTFLOW_CODEX_PATH", "codex.cmd")
         model = environ.get("AGENTFLOW_CODEX_MODEL", "gpt-5-mini")
@@ -67,12 +74,23 @@ class Settings:
         copilot_path = environ.get("AGENTFLOW_COPILOT_PATH", "copilot")
         copilot_token = environ.get("AGENTFLOW_COPILOT_TOKEN")
 
+        anthropic_cli = environ.get("AGENTFLOW_ANTHROPIC_PATH", "anthropic")
+        anthropic_model = environ.get("AGENTFLOW_ANTHROPIC_MODEL", "claude-3-5-sonnet-latest")
+        try:
+            anthropic_max_tokens = int(environ.get("AGENTFLOW_ANTHROPIC_MAX_TOKENS", "1024"))
+        except ValueError:
+            anthropic_max_tokens = 1024
+
         return cls(
-            openai_api_key=api_key,
+            openai_api_key=openai_api_key,
             codex_cli_path=cli_path,
             model=model,
             sandbox_mode=sandbox,
             approval_policy=approval,
             copilot_cli_path=copilot_path,
             copilot_token=copilot_token,
+            anthropic_api_key=anthropic_api_key,
+            anthropic_cli_path=anthropic_cli,
+            anthropic_model=anthropic_model,
+            anthropic_max_tokens=anthropic_max_tokens,
         )
