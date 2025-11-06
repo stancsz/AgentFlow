@@ -87,7 +87,7 @@ AgentFlow now delegates prompt execution and evaluation to a LangGraph state mac
 - performs self-evaluation,
 - and injects synthetic LangGraph nodes into the persisted plan artifact.
 
-You can extend this orchestration by editing `_build_prompt_pipeline` in `src/agentflow/cli.py`; add new nodes, conditional edges, or tooling integrations while staying inside the LangGraph execution model.
+You can extend this orchestration by editing `build_prompt_pipeline` in `src/agentflow/cli/pipeline.py`; add new nodes, conditional edges, or tooling integrations while staying inside the LangGraph execution model.
 
 ## Inspect the DAG in the Viewer
 

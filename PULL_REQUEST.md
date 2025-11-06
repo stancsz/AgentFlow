@@ -25,7 +25,7 @@ This PR implements a **GitHub Copilot CLI adapter** as requested in issue #5, fo
 - Generates synthetic flow specs for flow-related prompts
 - Ideal for CI/CD, unit tests, and quick demos
 
-#### 3. **Adapter Selection System** (`src/agentflow/cli.py`)
+#### 3. **Adapter Selection System** (`src/agentflow/cli/entry.py`)
 - CLI now reads `AGENTFLOW_ADAPTER` environment variable
 - Supported values: `codex` (default), `copilot`, `mock`
 - Graceful error handling for all adapter types
