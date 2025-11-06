@@ -21,7 +21,14 @@ from textwrap import dedent
 
 import yaml
 
-from agentflow.adapters import CodexCLIAdapter, CodexCLIError
+from agentflow.adapters import (
+    CodexCLIAdapter,
+    CodexCLIError,
+    CopilotCLIAdapter,
+    CopilotCLIError,
+    MockAdapter,
+    MockAdapterError,
+)
 from agentflow.config import ConfigurationError, Settings
 from agentflow.viewer import run_viewer
 
@@ -145,7 +152,22 @@ def _handle_prompt(prompt: str, *, output_mode: str) -> int:
     base_name = timestamp.strftime("agentflow-%Y%m%d%H%M%S")
     target_path, plan_id = _resolve_plan_path(base_name)
 
-    adapter = CodexCLIAdapter(settings)
+    # Select adapter based on AGENTFLOW_ADAPTER environment variable
+    from os import environ
+    adapter_name = environ.get("AGENTFLOW_ADAPTER", "codex").lower()
+    
+    if adapter_name == "mock":
+        adapter = MockAdapter(settings)
+        adapter_error_class = MockAdapterError
+    elif adapter_name == "copilot":
+        adapter = CopilotCLIAdapter(settings)
+        adapter_error_class = CopilotCLIError
+    elif adapter_name == "codex":
+        adapter = CodexCLIAdapter(settings)
+        adapter_error_class = CodexCLIError
+    else:
+        print(f"Unknown adapter '{adapter_name}'. Use 'codex', 'copilot', or 'mock'.", file=sys.stderr)
+        return 1
 
     node_status = "succeeded"
     plan_status = "completed"
@@ -178,11 +200,11 @@ def _handle_prompt(prompt: str, *, output_mode: str) -> int:
         evaluation_payload = _perform_self_evaluation(adapter, prompt, result.message)
         if evaluation_payload:
             outputs["evaluation"] = _build_evaluation_outputs(evaluation_payload)
-    except CodexCLIError as exc:
+    except (CodexCLIError, CopilotCLIError, MockAdapterError) as exc:
         node_status = "failed"
         plan_status = "failed"
         error_payload = {"message": str(exc)}
-        notes = f"Codex invocation failed: {exc}"
+        notes = f"Adapter invocation failed: {exc}"
     except Exception as exc:  # pragma: no cover - defensive catch
         node_status = "failed"
         plan_status = "failed"

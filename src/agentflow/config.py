@@ -29,6 +29,8 @@ class Settings:
     model: str = "gpt-5-mini"
     sandbox_mode: str = "workspace-write"
     approval_policy: str = "on-request"
+    copilot_cli_path: str = "copilot"
+    copilot_token: Optional[str] = None
 
     @classmethod
     def from_env(
@@ -62,6 +64,8 @@ class Settings:
         model = environ.get("AGENTFLOW_CODEX_MODEL", "gpt-5-mini")
         sandbox = environ.get("AGENTFLOW_SANDBOX", "workspace-write")
         approval = environ.get("AGENTFLOW_APPROVAL_POLICY", "on-request")
+        copilot_path = environ.get("AGENTFLOW_COPILOT_PATH", "copilot")
+        copilot_token = environ.get("AGENTFLOW_COPILOT_TOKEN")
 
         return cls(
             openai_api_key=api_key,
@@ -69,4 +73,6 @@ class Settings:
             model=model,
             sandbox_mode=sandbox,
             approval_policy=approval,
+            copilot_cli_path=copilot_path,
+            copilot_token=copilot_token,
         )
