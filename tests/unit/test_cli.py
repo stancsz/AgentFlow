@@ -33,8 +33,8 @@ def test_main_creates_yaml_on_success(monkeypatch, tmp_path):
     monkeypatch.setattr("agentflow.cli.Settings.from_env", lambda: settings)
 
     adapter = FakeAdapter(settings)
-    # Mock the ADAPTERS registry to return FakeAdapter
-    monkeypatch.setattr("agentflow.cli.ADAPTERS", {"codex": lambda s: adapter, "claude": lambda s: adapter})
+    # Mock the adapter resolver to return FakeAdapter
+    monkeypatch.setattr("agentflow.cli.entry._resolve_adapter", lambda name: (lambda s: adapter, CodexCLIError))
 
     exit_code = agentflow_main(["Generate summary"])
     assert exit_code == 0
@@ -65,9 +65,9 @@ def test_main_writes_failed_artifact(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
     settings = Settings(openai_api_key="test-key")
     monkeypatch.setattr("agentflow.cli.Settings.from_env", lambda: settings)
-    # Mock the ADAPTERS registry to return FailingAdapter
+    # Mock the adapter resolver to return FailingAdapter
     failing_adapter_instance = FailingAdapter(settings)
-    monkeypatch.setattr("agentflow.cli.ADAPTERS", {"codex": lambda s: failing_adapter_instance, "claude": lambda s: failing_adapter_instance})
+    monkeypatch.setattr("agentflow.cli.entry._resolve_adapter", lambda name: (lambda s: failing_adapter_instance, CodexCLIError))
 
     exit_code = agentflow_main(["Do the thing"])
     assert exit_code == 1
