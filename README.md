@@ -37,7 +37,20 @@ npm install -g @openai/codex
 set OPENAI_API_KEY=sk-...
 ```
 
-## Generate a Showcase LangGraph
+Alternatively, use Anthropic Claude via the official CLI:
+
+```bash
+npm install -g anthropic
+set ANTHROPIC_API_KEY=sk-ant-...
+```
+
+You can select the backend adapter per run using `--adapter`:
+
+```bash
+py -3 -m agentflow.cli --adapter claude "Summarize the purpose of this repository in 3 bullets."
+```
+
+## Generate a Showcase Prompt Graph
 
 Use the built-in CLI to trigger a demonstration run that produces a multi-branch DAG with evaluation nodes:
 
@@ -67,6 +80,14 @@ The CLI will emit `sandbox/agentflow-<timestamp>.yaml`. That artifact contains:
 - Structured `flow_spec` JSON.
 - Synthetic `flow::` nodes injected into the plan so the viewer graph shows every branch, loop, and evaluation path.
 - Optional AgentFlowLanguage (`.afl`) transcription when `--output afl` is provided.
+
+The same workflow works with the Claude adapter by adding `--adapter claude`. Ensure `ANTHROPIC_API_KEY` is set and optionally tune via:
+
+```
+set AGENTFLOW_ANTHROPIC_PATH=anthropic
+set AGENTFLOW_ANTHROPIC_MODEL=claude-3-5-sonnet-latest
+set AGENTFLOW_ANTHROPIC_MAX_TOKENS=1024
+```
 
 ## AgentFlowLanguage Output
 
@@ -123,6 +144,12 @@ The Flask viewer offers:
 
 - `pytest -k unit` covers fast, local tests.
 - `py -3 -m pytest tests/live/test_agentflow_cli_live.py -k branches` kicks off the live scenario that asks Codex to produce a six-node graph with branching and loops. It writes a plan artifact identical to the showcase run above (requires `OPENAI_API_KEY`).
+
+For Claude live smoke test:
+
+```
+py -3 -m pytest tests/live/test_claude_adapter_live.py -m live
+```
 
 ## Roadmap
 

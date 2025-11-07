@@ -9,6 +9,8 @@ from agentflow.adapters import (
     MockAdapterError,
     GeminiCLIAdapter,
     GeminiCLIError,
+    ClaudeCLIAdapter,
+    ClaudeCLIError,
 )
 from agentflow.config import ConfigurationError, Settings
 from agentflow.viewer import run_viewer
@@ -29,6 +31,8 @@ __all__ = [
     "MockAdapterError",
     "GeminiCLIAdapter",
     "GeminiCLIError",
+    "ClaudeCLIAdapter",
+    "ClaudeCLIError",
     "Settings",
     "ConfigurationError",
     "run_viewer",

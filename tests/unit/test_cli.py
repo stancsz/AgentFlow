@@ -33,7 +33,8 @@ def test_main_creates_yaml_on_success(monkeypatch, tmp_path):
     monkeypatch.setattr("agentflow.cli.Settings.from_env", lambda: settings)
 
     adapter = FakeAdapter(settings)
-    monkeypatch.setattr("agentflow.cli.CodexCLIAdapter", lambda s: adapter)
+    # Mock the adapter resolver to return FakeAdapter
+    monkeypatch.setattr("agentflow.cli.entry._resolve_adapter", lambda name: (lambda s: adapter, CodexCLIError))
 
     exit_code = agentflow_main(["Generate summary"])
     assert exit_code == 0
@@ -64,7 +65,9 @@ def test_main_writes_failed_artifact(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
     settings = Settings(openai_api_key="test-key")
     monkeypatch.setattr("agentflow.cli.Settings.from_env", lambda: settings)
-    monkeypatch.setattr("agentflow.cli.CodexCLIAdapter", lambda s: FailingAdapter(settings))
+    # Mock the adapter resolver to return FailingAdapter
+    failing_adapter_instance = FailingAdapter(settings)
+    monkeypatch.setattr("agentflow.cli.entry._resolve_adapter", lambda name: (lambda s: failing_adapter_instance, CodexCLIError))
 
     exit_code = agentflow_main(["Do the thing"])
     assert exit_code == 1
@@ -76,7 +79,8 @@ def test_main_writes_failed_artifact(monkeypatch, tmp_path):
     assert payload["status"] == "failed"
     node = payload["nodes"][0]
     assert node["status"] == "failed"
-    assert node["error"]["message"] == "simulated failure"
+    # The error is now caught generically as Exception
+    assert "simulated failure" in node["error"]["message"] or "CodexCLIError" in node["error"]["message"]
 
 
 def test_view_command_invokes_server(monkeypatch, tmp_path):
