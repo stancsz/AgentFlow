@@ -86,9 +86,10 @@ class CodexCLIAdapter:
         if self._settings.openai_api_key:
             env["OPENAI_API_KEY"] = self._settings.openai_api_key
 
-        # Pass the prompt as the final CLI argument for easier testing and
-        # to match the expected invocation shape used across the test suite.
-        command = self.build_base_command() + [prompt]
+        # Pass the prompt via stdin and use '-' as the final CLI argument.
+        # This matches the CLI shape expected by the real `codex` tool and
+        # the unit tests which assert the final arg is '-'.
+        command = self.build_base_command() + ["-"]
 
         completed = subprocess.run(
             command,
@@ -97,6 +98,7 @@ class CodexCLIAdapter:
             timeout=timeout,
             env=env,
             cwd=cwd,
+            input=prompt,
         )
 
         if completed.returncode != 0:
