@@ -52,12 +52,25 @@ class GeminiCLIAdapter:
         self._extra_args = list(extra_args or [])
 
     def build_base_command(self) -> List[str]:
-        """Construct the CLI command prior to adding the prompt."""
+        """Construct the CLI command prior to adding the prompt.
+
+        Honors optional Settings overrides when present (model, max tokens).
+        """
 
         cli_path = getattr(self._settings, "gemini_cli_path", "gemini")
         # Conservative default invocation; real CLIs may differ. Keep flags
         # minimal and allow extra_args to customize behavior in tests.
         command = [cli_path, "chat", "--json"]
+
+        # Optionally include model and max tokens if provided in Settings.
+        model = getattr(self._settings, "gemini_model", None)
+        if model:
+            command += ["--model", str(model)]
+
+        max_tokens = getattr(self._settings, "gemini_max_output_tokens", None)
+        if isinstance(max_tokens, int) and max_tokens > 0:
+            command += ["--max-output-tokens", str(max_tokens)]
+
         command.extend(self._extra_args)
         return command
 

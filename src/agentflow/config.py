@@ -34,6 +34,9 @@ class Settings:
     copilot_token: Optional[str] = None
     gemini_cli_path: str = "gemini"
     gemini_api_key: Optional[str] = None
+    # Optional Gemini tuning parameters (only added to CLI if provided)
+    gemini_model: Optional[str] = None
+    gemini_max_output_tokens: Optional[int] = None
 
     # Anthropic/Claude
     anthropic_api_key: Optional[str] = None
@@ -77,6 +80,12 @@ class Settings:
         copilot_token = environ.get("AGENTFLOW_COPILOT_TOKEN")
         gemini_path = environ.get("AGENTFLOW_GEMINI_PATH", "gemini")
         gemini_api_key = environ.get("AGENTFLOW_GEMINI_API_KEY")
+        gemini_model = environ.get("AGENTFLOW_GEMINI_MODEL")
+        gemini_max_tokens_raw = environ.get("AGENTFLOW_GEMINI_MAX_TOKENS")
+        try:
+            gemini_max_output_tokens = int(gemini_max_tokens_raw) if gemini_max_tokens_raw else None
+        except ValueError:
+            gemini_max_output_tokens = None
 
         anthropic_cli = environ.get("AGENTFLOW_ANTHROPIC_PATH", "anthropic")
         anthropic_model = environ.get("AGENTFLOW_ANTHROPIC_MODEL", "claude-3-5-sonnet-latest")
@@ -95,6 +104,8 @@ class Settings:
             copilot_token=copilot_token,
             gemini_cli_path=gemini_path,
             gemini_api_key=gemini_api_key,
+            gemini_model=gemini_model,
+            gemini_max_output_tokens=gemini_max_output_tokens,
             anthropic_api_key=anthropic_api_key,
             anthropic_cli_path=anthropic_cli,
             anthropic_model=anthropic_model,

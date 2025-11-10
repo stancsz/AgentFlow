@@ -48,6 +48,27 @@ You can select the backend adapter per run using `--adapter`:
 
 ```bash
 py -3 -m agentflow.cli --adapter claude "Summarize the purpose of this repository in 3 bullets."
+
+Gemini support follows the same pattern (set `AGENTFLOW_ADAPTER=gemini` or pass `--adapter gemini`). Optional tuning via:
+
+```
+set AGENTFLOW_GEMINI_PATH=gemini
+set AGENTFLOW_GEMINI_API_KEY=ya29.xxx
+set AGENTFLOW_GEMINI_MODEL=gemini-1.5-flash
+set AGENTFLOW_GEMINI_MAX_TOKENS=512
+```
+
+Example invocation:
+
+```bash
+py -3 -m agentflow.cli --adapter gemini "Draft a two-node LangGraph that reads a file then summarizes it."
+```
+
+See an advanced multi-node example with branching & loop logic in `_PRD/example-flow-gemini-advanced.yml` which illustrates:
+- conditional branch (`refine_summary` vs `short_summary_path`)
+- a refinement loop
+- a summary evaluation node producing a score
+- synthetic compilation node to assemble a final `flow_spec`
 ```
 
 ## Generate a Showcase Prompt Graph
