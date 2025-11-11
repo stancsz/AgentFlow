@@ -1,5 +1,7 @@
 # AgentFlow
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 **Teaching AI to learn how to learn — by autonomously creating its own LangGraphs.**
 
 AgentFlow rethinks agent orchestration. Instead of hand-written prompt chains, we ask the agent to draft _LangGraphs_ — directed workflows with branches, loops, and evaluation hooks. Each run becomes a rich artifact that captures source prompts, tool outputs, self-evaluations, and the synthetic graph structure that the agent just invented. Those artifacts feed a viewer, tests, and metrics that make it easier to iterate toward domain-specific agentic systems.
