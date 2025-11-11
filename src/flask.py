@@ -17,11 +17,19 @@ class Flask:
         self.static_folder = static_folder
         self.template_folder = template_folder
         self.config: Dict[str, Any] = {}
+        # Map of route -> handler callable stored by the route decorator.
+        self._routes: Dict[str, Callable[..., Any]] = {}
 
     def route(self, rule: str, **kwargs) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
         # Simple decorator passthrough; real Flask registers routes, but tests only
         # import modules that declare routes. Return the original function.
         def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+            # Store the handler so a simple test client can invoke it later.
+            try:
+                self._routes[rule] = func
+            except Exception:
+                # If routes mapping can't be set for some reason, ignore.
+                pass
             return func
 
         return decorator
@@ -29,6 +37,36 @@ class Flask:
     def run(self, host: str | None = None, port: int | None = None, debug: bool = False, use_reloader: bool = False) -> None:
         # No-op for tests.
         return None
+
+    def test_client(self):
+        """Return a minimal test client that can call registered route handlers.
+
+        This is intentionally tiny: it only supports GET and returns an object with
+        .status_code and .data attributes which is sufficient for unit tests that
+        only check the HTTP status and rendered content.
+        """
+
+        app = self
+
+        class _SimpleResponse:
+            def __init__(self, data: Any, status_code: int = 200):
+                self.data = data
+                self.status_code = status_code
+
+        class _SimpleClient:
+            def get(self, path: str):
+                # Exact-match lookup for registered route handlers.
+                handler = app._routes.get(path)
+                if handler is None:
+                    # Not found: mimic Flask 404
+                    return _SimpleResponse(f"Not Found: {path}", status_code=404)
+                try:
+                    result = handler()
+                    return _SimpleResponse(result, status_code=200)
+                except Exception as exc:  # pragma: no cover - surface errors to tests
+                    return _SimpleResponse(f"Error invoking handler: {exc}", status_code=500)
+
+        return _SimpleClient()
 
 
 def render_template(template_name: str, **context: Any) -> str:
